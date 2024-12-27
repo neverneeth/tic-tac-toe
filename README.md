@@ -1,6 +1,6 @@
 # Tic-Tac-Toe Game
 
-Welcome to the **Tic-Tac-Toe Game**! This is a console-based implementation of the classic game, featuring single-player and two-player modes. 
+Welcome to the **Tic-Tac-Toe Game**! This is a console-based implementation of game, featuring single-player and two-player modes. 
 
 ---
 
@@ -18,3 +18,9 @@ Welcome to the **Tic-Tac-Toe Game**! This is a console-based implementation of t
 
 ### Winning Logic:
 - The game checks for wins horizontally, vertically, and diagonally.
+
+### Save and Load:
+- You can save a game and load it again. The mode and last played turn are saved along with the board.
+
+### Future Features:
+- A medium difficulty for single player

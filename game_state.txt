@@ -1,6 +1,0 @@
-O,2,3
-4,X,6
-7,8,9
-Player Turn: 1
-Filled Squares: 2
-Mode: 1pe

@@ -18,5 +18,3 @@ Welcome to the **Tic-Tac-Toe Game**! This is a console-based implementation of t
 
 ### Winning Logic:
 - The game checks for wins horizontally, vertically, and diagonally.
-
---

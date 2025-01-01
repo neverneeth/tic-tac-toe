@@ -1,4 +1,5 @@
 import random
+import os
 
 class GameBoard():
     def __init__(self):
@@ -54,20 +55,28 @@ def load_game():
         return game
     except FileNotFoundError:
         print("No saved game found.")
+        n = input("Enter any key to return to main menu: ")
+        return GameBoard()
+    except IndexError:
+        print("No saved game found.")
+        n = input("Enter any key to return to main menu: ")
         return GameBoard()
     except Exception as e:
         print(f"An error occurred while loading the game: {e}")
+        n = input("Enter any key to return to main menu: ")
         return GameBoard()
 
 
 
 def twop_game_loop(game):
     while True:
+        save_game(game)
         try:
             game.mode = '2pe'
             if game.count == 9:
                 game.print_board()
                 print("Game Drawn")
+                os.remove("game_state.txt")
                 break
             game.print_board()
             n = input("Enter a position (1-9) or 'S' to save: ").strip()
@@ -79,20 +88,23 @@ def twop_game_loop(game):
             if win_checker(game):
                 game.print_board()
                 print("Winner is Player ", (2 if game.turn == 1 else 1))
+                n = input("Enter any key to return to main menu: ")
                 break
         except ValueError:
             print("Invalid move. Try again.")
-        except Exception:
-            print("An error occurred. Try again.")
+        except Exception as e:
+            print(f"An error occurred: {e}. Try again.")
 
 
 def onep_easy_game_loop(game):
     while True:
         try:
+            save_game(game)
             game.mode = "1pe"
             if game.count == 9:
                 game.print_board()
                 print("Game Drawn")
+                os.remove("game_state.txt")
                 break
             game.print_board()
             if game.turn == 1:
@@ -109,27 +121,94 @@ def onep_easy_game_loop(game):
             if win_checker(game):
                 game.print_board()
                 print("Winner is", ('Computer' if game.turn == 1 else 'Player 1'))
+                n = input("Enter any key to return to main menu: ")
                 break
         except ValueError:
             print("Invalid move. Try again.")
         except Exception:
             print("An error occurred. Try again.")
 
+def onep_medium_game_loop(game):
+    while True:
+        try:
+            save_game(game)
+            game.mode = "1pe"
+            if game.count == 9:
+                game.print_board()
+                print("Game Drawn")
+                os.remove("game_state.txt")
+                break
+            game.print_board()
+            if game.turn == 1:
+                n = input("Enter a position (1-9) or 'S' to save: ").strip()
+                if n.upper() == 'S':
+                    save_game(game)
+                    break
+                n = int(n)
+            else:
+                print("Computer is Playing...")
+                empty_positions = [i + 1 for i in range(9) if str(game.board[i // 3][i % 3]).isnumeric()]
+                n = blockwin(game, empty_positions)
+            game.update_board(n)
+            if win_checker(game):
+                game.print_board()
+                print("Winner is", ('Computer' if game.turn == 1 else 'Player 1'))
+                n = input("Enter any key to return to main menu: ")
+                break
+        except ValueError:
+            print("Invalid move. Try again.")
+        except Exception:
+            print("An error occurred. Try again.")
 
 def win_checker(game):
     state = game.board
     for row in state:
         if row[0] == row[1] == row[2]:
+            os.remove("game_state.txt")
             return True
     for col in range(3):
         if state[0][col] == state[1][col] == state[2][col]:
+            os.remove("game_state.txt")
             return True
     if state[0][0] == state[1][1] == state[2][2]:
+        os.remove("game_state.txt")
         return True
     if state[0][2] == state[1][1] == state[2][0]:
+        os.remove("game_state.txt")
         return True
     return False
 
+def blockwin(game, empty_pos):
+    state = game.board
+    opponent_shape = game.shape[1] if game.turn == 2 else game.shape[2]
+
+    for i in range(3):
+        row = state[i]
+        if row.count(opponent_shape) == 2 and any(str(x).isnumeric() for x in row):
+            for j in range(3):
+                if str(row[j]).isnumeric():
+                    return i * 3 + j + 1
+
+    for j in range(3):
+        col = [state[i][j] for i in range(3)]
+        if col.count(opponent_shape) == 2 and any(str(x).isnumeric() for x in col):
+            for i in range(3):
+                if str(state[i][j]).isnumeric():
+                    return i * 3 + j + 1
+
+    diag = [state[i][i] for i in range(3)]
+    if diag.count(opponent_shape) == 2 and any(str(x).isnumeric() for x in diag):
+        for i in range(3):
+            if str(state[i][i]).isnumeric():
+                return i * 3 + i + 1
+
+    anti_diag = [state[i][2 - i] for i in range(3)]
+    if anti_diag.count(opponent_shape) == 2 and any(str(x).isnumeric() for x in anti_diag):
+        for i in range(3):
+            if str(state[i][2 - i]).isnumeric():
+                return i * 3 + (2 - i) + 1
+
+    return random.choice(empty_pos)
 
 def opening_screen():
     print(r"""
@@ -157,7 +236,13 @@ def main():
                 mode = int(input("Choose Game Mode:\n1. Single Player\n2. Two Player\nEnter your choice: "))
                 s = GameBoard()
                 if mode == 1:
-                    onep_easy_game_loop(s)
+                    difficulty = int(input("Choose Difficulty:\n1. easy\n2. medium\nEnter your choice: "))
+                    if difficulty == 1:
+                        onep_easy_game_loop(s)
+                    elif difficulty == 2:
+                        onep_medium_game_loop(s)
+                    else:
+                        print("Invalid difficutly. Returning to main menu")
                 elif mode == 2:
                     twop_game_loop(s)
                 else:
@@ -175,6 +260,7 @@ Instructions:
 - A row, column, or diagonal of the same mark wins.
 - Player 1 uses 'O' and Player 2 (or Computer) uses 'X'.
 """)
+                x = input("Enter any key to return to main menu: ")
             elif ch == 4:
                 print("Thank you for playing! Goodbye.")
                 break

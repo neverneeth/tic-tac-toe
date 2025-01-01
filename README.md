@@ -1,4 +1,4 @@
-# Tic-Tac-Toe
+# Tic-Tac-Toe ❌⭕
 
 A Python-based Tic-Tac-Toe game for single-player and two-player modes, featuring a saving and loading system and variable difficulty levels.
 
